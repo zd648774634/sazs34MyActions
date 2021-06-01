@@ -1,0 +1,32 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+
+name: 同步「Dog」脚本
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 0-23/3 * * *'
+  push:
+    branches: [ master ]
+  repository_dispatch:
+    types: sync-ElsaKing-scripts
+jobs:
+  repo-sync:
+    env:
+      PAT: ${{ secrets.PAT }} #此处PAT需要申请，教程详见：https://www.jianshu.com/p/bb82b3ad1d11
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: sync-ElsaKing-scripts
+        uses: repo-sync/github-sync@v2
+        if: env.PAT
+        with:
+          source_repo: "https://github.com/ElsaKing/DogDog.git"
+          source_branch: "main"
+          destination_branch: "main"
+          github_token: ${{ secrets.PAT }}
